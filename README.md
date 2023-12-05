@@ -1,0 +1,2 @@
+# ValidAsyncAPISpecifications
+Valid AsyncAPI Specifications
