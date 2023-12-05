@@ -1,0 +1,97 @@
+asyncapi: '2.1.0'
+id: 'urn:io.microcks.example.user-signedup'
+info:
+  title: User signed-up Avro API
+  version: 0.1.1
+  description: |
+    Sample AsyncAPI for user signedup events defined using Avro.
+
+    Each event contains a header with the sending application identifier and an application generated sending time timestamp. 
+
+    Technical References:
+      - Kafka record headers: https://cwiki.apache.org/confluence/display/KAFKA/KIP-82+-+Add+Record+Headers
+  contact:
+    name: Laurent Broudoux
+    url: https://github.com/lbroudoux
+    email: laurent.broudoux@gmail.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+defaultContentType: application/json
+channels:
+  user/signedup:
+    description: The topic on which user signed up events may be consumed
+    publish:
+      summary: Publish informations about user signed up
+      operationId: publishUserSignedUp
+      # https://www.asyncapi.com/docs/reference/specification/v2.0.0#messageObject
+      message:
+        name: UserSignedUp
+        title: User Signed Up
+        description: An event describing that a user just signed up.
+        tags:
+          - name: User
+        # https://www.asyncapi.com/docs/reference/specification/v2.0.0#messageBindingsObject
+        # Message Bindings Object is a map that describes protocol-specific definitions for a message.
+        bindings:
+          kafka:
+            key:
+              type: string
+              description: The 
+        # https://www.asyncapi.com/docs/reference/specification/v2.0.0#messageTraitObject
+        # Describes a trait that MAY be applied to a Message Object. This MAY contain any property from the
+        # Message Object, except payload and traits.
+        traits:
+          - $ref: '#/components/messageTraits/commonHeaders'
+        headers:
+          type: object
+          properties:
+            sentAt:
+              type: string
+              format: date-time
+              description: Date and time when the event was sent
+        contentType: avro/binary
+        # https://www.asyncapi.com/docs/reference/specification/v2.0.0#messageObjectSchemaFormatTable
+        schemaFormat: application/vnd.apache.avro+yaml;version=1.9.0
+        payload:
+          type: record
+          name: UserSignedUpPayload
+          namespace: com.example.avro
+          doc: User information
+          fields:
+            - name: fullName
+              type: string
+              doc: The full name (all names) of the user.
+            - name: email
+              type: string
+              doc: The email address of the user.
+            - name: age
+              type: int
+              doc: The age of the user.
+          examples:
+            - name: john
+              summary: Example for John Doe user
+              headers:
+                app-id: 24
+                sentAt: "{{now(yyyy-MM-dd'T'HH:mm:SS'Z')}}"
+              payload:
+                fullName: "{{randomFullName()}}"
+                email: "{{randomEmail()}}"
+                age: 21
+
+components:
+  messageTraits:
+    commonHeaders:
+      headers:
+        type: object
+        properties:
+          app-id:
+            type: integer
+            minimum: 0
+            maximum: 100
+            description: A unique publising application identifier.
+        examples:
+          - name: laurent
+            app-id: 21
+          - name: yacine
+            app-id: 22
